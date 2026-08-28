@@ -27,6 +27,14 @@ Return JSON:
   "reason": string          // one sentence, citing what the page says
 }
 
+If the page states a DIFFERENT deadline from the claimed one, that is not a
+failure — set deadlineMatches:false and put the page's own date in
+correctedDeadlineIso. Only leave correctedDeadlineIso null if the page states no
+usable date at all.
+
+If the call is rolling or continuously open, set open:true, deadlineMatches:true
+and say "rolling" in reason.
+
 If you cannot open or read the page, return open:false and say so in reason.
 Never infer a deadline that the page does not state. Being unable to confirm is
 a correct and useful answer.`;

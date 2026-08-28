@@ -32,10 +32,12 @@ export async function runPipeline(runId: string): Promise<RunOutcome> {
   const now = new Date();
   const today = now.toISOString().slice(0, 10);
   const rejections: Rejection[] = [];
+  let found = 0;
 
   try {
     console.log(`[${runId}] discover`);
     const discovered = await discover(today);
+    found = discovered.opportunities.length;
     rejections.push(...discovered.rejections);
     console.log(`[${runId}] discovered ${discovered.opportunities.length}`);
 
@@ -103,7 +105,7 @@ export async function runPipeline(runId: string): Promise<RunOutcome> {
   } catch (error) {
     const message = (error as Error).message;
     console.error(`[${runId}] failed:`, message);
-    await finishRun(runId, "failed", { error: message, rejections });
-    return { runId, status: "failed", found: 0, kept: 0, rejections, error: message };
+    await finishRun(runId, "failed", { error: message, found, rejections });
+    return { runId, status: "failed", found, kept: 0, rejections, error: message };
   }
 }

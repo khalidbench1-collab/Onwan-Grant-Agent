@@ -16,14 +16,34 @@ import { DiscoveryResultSchema, type Opportunity, type Rejection } from "../sche
  * may not add anything the first call did not say.
  */
 
-const SEARCH_PROMPT = `You are researching funding opportunities for working journalists.
+const SEARCH_PROMPT = `Today is {TODAY}. You are researching funding opportunities
+for working journalists.
 
-Search the web and find OPEN calls — grants, fellowships, residencies, reporting
+Search the web and find calls — grants, fellowships, residencies, reporting
 stipends and travel grants — that a freelance journalist BASED IN GERMANY or
-elsewhere in the EU can apply for right now.
+elsewhere in the EU can apply for RIGHT NOW.
+
+The single hardest requirement: the call must be ACCEPTING APPLICATIONS TODAY.
+A famous programme whose round has closed is worthless here. Before you list
+anything, check the page for words like "closed", "paused", "next call opens",
+"applications have ended" — and if you find them, do not list it.
+
+Do not stop at the four or five best-known European journalism funds. Those are
+usually between rounds. Search widely and specifically, for example:
+- "call for applications" journalism grant {YEAR} deadline
+- Recherchestipendium / Journalistenstipendium / Medienstipendium Bewerbung
+- journalism residency open call apply
+- reporting grant "applications are open"
+- environmental / investigative / data journalism fellowship deadline {NEXT_MONTHS}
+Search in German as well as English — German-language funders are under-indexed
+in English results and are exactly the ones open to someone based in Germany.
+
+Also include rolling or continuously-open programmes (no fixed deadline). Those
+are valuable precisely because they are always available; say "rolling" as the
+deadline.
 
 Prioritise:
-- calls whose application deadline has not passed
+- calls whose deadline falls AFTER {TODAY}
 - European and German funders, plus international funders open to EU applicants
 - opportunities for individual journalists rather than newsrooms or institutions
 
@@ -42,7 +62,9 @@ Rules:
 - Never guess a deadline or an amount. If a page does not state one, say so.
 - Prefer the funder's own page over an aggregator's summary.
 
-Find as many as you can, up to 12.`;
+Find as many as you can, up to 15. A shorter list of genuinely open calls beats
+a longer list padded with closed ones — every entry is independently verified
+after you, and closed entries are thrown away.`;
 
 const EXTRACT_SYSTEM = `You convert research notes into JSON.
 
@@ -111,9 +133,15 @@ export interface DiscoverResult {
 export async function discover(today: string): Promise<DiscoverResult> {
   const ai = gemini();
 
+  const soon = new Date(today);
+  soon.setMonth(soon.getMonth() + 3);
+  const prompt = SEARCH_PROMPT.replaceAll("{TODAY}", today)
+    .replaceAll("{YEAR}", today.slice(0, 4))
+    .replaceAll("{NEXT_MONTHS}", `${today.slice(0, 7)} to ${soon.toISOString().slice(0, 7)}`);
+
   const searched = await ai.models.generateContent({
     model: config.model,
-    contents: SEARCH_PROMPT,
+    contents: prompt,
     config: {
       tools: [{ googleSearch: {} }],
       temperature: 0.3,
