@@ -7,8 +7,10 @@ import { recentDigests } from "./store/firestore.js";
 const app = express();
 app.use(express.json({ limit: "128kb" }));
 
-app.get("/healthz", (_req, res) => {
-  res.json({ ok: true, service: "onwan-grants" });
+// Not /healthz: the Google Front End intercepts that path on Cloud Run and
+// answers its own 404 before the request ever reaches this container.
+app.get("/status", (_req, res) => {
+  res.json({ ok: true, service: "onwan-grants", model: config.model });
 });
 
 /**

@@ -63,13 +63,65 @@ export function scoreUrgency(o: Opportunity, today: Date): number {
 }
 
 /**
+ * Burdens, weighted by what they actually cost — which is not length.
+ *
+ * The owner's rule: anything that depends on ANOTHER PERSON'S time is the
+ * expensive kind, because no amount of your own effort shortens it. A twenty-
+ * page budget is tedious but it is yours to finish at midnight; a reference
+ * letter is a request, a wait, and a reminder, and it can simply not arrive.
+ * So third-party dependencies cost roughly double the solo paperwork.
+ */
+const BURDENS: ReadonlyArray<{ test: RegExp; cost: number }> = [
+  // Depends on someone else saying yes.
+  { test: /\b(reference|recommendation|referee|endorse)/i, cost: 0.35 },
+  { test: /\b(fiscal sponsor|sponsoring organisation|host organisation|institutional)/i, cost: 0.35 },
+  { test: /\b(editor'?s? (letter|commitment)|letter of (support|intent|commissioning)|assignment letter)/i, cost: 0.3 },
+  { test: /\b(co-?applicant|partner organisation|team of|consortium)/i, cost: 0.3 },
+  { test: /\b(interview|panel|pitch session|shortlist präsentation)\b/i, cost: 0.2 },
+  // Yours alone: real work, but bounded and schedulable.
+  { test: /\b(budget|financial plan|costing)/i, cost: 0.15 },
+  { test: /\b(work sample|portfolio|clipping|published work)/i, cost: 0.1 },
+  { test: /\b(proposal|project plan|methodology|synopsis)/i, cost: 0.12 },
+  { test: /\b(cv|curriculum vitae|r[ée]sum[ée]|biograph)/i, cost: 0.04 },
+  { test: /\b(pitch|abstract|summary|cover letter|motivation)/i, cost: 0.04 },
+];
+
+/**
  * How much work the application actually is, as a 0–1 score where 1 means
  * "a pitch and a CV" and 0 means "a fiscal sponsor and three references".
  *
- * TODO(owner): implement this — see the request in the conversation.
+ * Costs are summed, not counted: five light requirements should not outrank two
+ * that each need a favour from someone. An empty requirements list means the
+ * source did not say — that is genuinely unknown, so it sits mid-scale rather
+ * than being rewarded as easy.
  */
-export function scoreFeasibility(_o: Opportunity): number {
-  throw new Error("scoreFeasibility not implemented");
+export function scoreFeasibility(o: Opportunity): number {
+  if (o.requirements.length === 0) return 0.5;
+
+  let cost = 0;
+  let recognised = 0;
+
+  for (const requirement of o.requirements) {
+    const matched = BURDENS.filter((b) => b.test.test(requirement));
+    if (matched.length === 0) {
+      cost += 0.12; // unrecognised: assume ordinary solo paperwork
+      continue;
+    }
+    recognised += 1;
+    // One requirement line can name several things ("budget and two referees").
+    cost += matched.reduce((sum, b) => sum + b.cost, 0);
+
+    // "two letters of reference" is two favours, not one.
+    if (/\b(two|three|four|2|3|4)\b/i.test(requirement) && matched.some((b) => b.cost >= 0.3)) {
+      cost += 0.15;
+    }
+  }
+
+  // Nothing matched at all — the model described requirements in wording we do
+  // not model. Do not pretend to a precise score.
+  if (recognised === 0) return 0.5;
+
+  return Math.max(0, Math.min(1, 1 - cost));
 }
 
 export function rank(opportunities: Opportunity[], today: Date): Ranked[] {
