@@ -4,11 +4,12 @@ import type { Opportunity, Rejection } from "../schema.js";
 /**
  * The digest is a newsletter, not a search-result dump.
  *
- * Every call gets the same full brief — deadline, field table, what it is, the
- * steps to apply, the paperwork as a checklist. The three best are given a
- * richer treatment so the eye lands on them first, but they are not a different
- * KIND of entry: a reader who disagrees with the ranking loses nothing by
- * reading the fourth.
+ * Every call gets the same brief — deadline, field table, what it is, the
+ * paperwork as a checklist. The three best are given a richer treatment so the
+ * eye lands on them first, and they alone carry the application steps, which
+ * are the longest block on a card and would bury the top three if repeated
+ * seven times. Nothing else separates them: a reader who disagrees with the
+ * ranking still gets every fact about the fourth.
  *
  * The scoring internals are deliberately not shown. The order they produce is
  * useful; the arithmetic behind it is noise in an inbox, and printing three
@@ -62,9 +63,15 @@ function escape(s: string): string {
   );
 }
 
-/** The ranking, on the scale a reader actually thinks in. */
+/**
+ * The ranking, on the scale a reader actually thinks in.
+ *
+ * Whole numbers only. A decimal implies a precision the weights do not have —
+ * 6.5 and 6.4 are not a meaningful distinction, and printing one invites the
+ * reader to trust the arithmetic instead of the order.
+ */
 function outOfTen(total: number): string {
-  return (Math.round(total * 100) / 10).toFixed(1);
+  return String(Math.round(total * 10));
 }
 
 /** A row in the field table. Returns "" for anything the source did not state. */
@@ -101,7 +108,13 @@ function banner(o: Opportunity, featured: boolean): string {
   </table>`;
 }
 
-/** Numbered steps, quoted from the call. Absent when the page gave none. */
+/**
+ * Numbered steps, quoted from the call.
+ *
+ * Featured calls only. The steps are the longest block on a card, and repeating
+ * them seven times buries the three the reader should act on first. Absent too
+ * when the page gave no steps.
+ */
 function howToApply(o: Opportunity): string {
   if (o.howToApply.length === 0) return "";
   const steps = o.howToApply
@@ -187,7 +200,7 @@ function card({ opportunity: o, score }: Ranked, featured: boolean): string {
         </div>
 
         ${urgentFlag(score)}
-        ${howToApply(o)}
+        ${featured ? howToApply(o) : ""}
         ${checklist(o)}
 
       </td></tr>

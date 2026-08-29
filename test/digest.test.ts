@@ -65,6 +65,13 @@ describe("presentation", () => {
     expect(html).not.toContain("out of 100");
   });
 
+  it("scores in whole numbers, never a decimal", () => {
+    // spread() varies the amount so the totals are not round by accident.
+    const html = render(spread(6));
+    expect(html).not.toMatch(/\d[.,]\d\s*<\/b>\s*out of 10/);
+    expect(html.match(/>\d+<\/b> out of 10/g) ?? []).toHaveLength(6);
+  });
+
   it("keeps the scoring internals out of the reader's way", () => {
     const html = render(spread(4));
     expect(html).not.toContain("Computed, not guessed");
@@ -85,6 +92,15 @@ describe("only shows what the source stated", () => {
   it("omits the how-to-apply section when the page gave no steps", () => {
     const html = render([make({ howToApply: [] })]);
     expect(html).not.toContain("How to apply");
+  });
+
+  it("carries the application steps on the featured three only", () => {
+    const withSteps = spread(6).map((o) => ({
+      ...o,
+      howToApply: ["Register an account", "Upload the pitch"],
+    }));
+    const html = render(withSteps);
+    expect(html.match(/How to apply/g) ?? []).toHaveLength(3);
   });
 
   it("shows the steps in order when the page gave them", () => {
