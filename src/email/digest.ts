@@ -98,8 +98,12 @@ function sectionLabel(text: string): string {
  * make all the others irrelevant. Featured calls get the deeper green.
  */
 function banner(o: Opportunity, featured: boolean): string {
+  // Only says something when there is something to say. "Verified against the
+  // funder's own page" was true but repeated on every card, and the masthead
+  // paragraph already tells the reader that once. A missing calendar date is
+  // different: that is a fact about THIS call, so it stays.
   const note = o.deadline.iso
-    ? "Verified against the funder's own page before this email was sent."
+    ? ""
     : "No fixed calendar date on the page — treat the wording, not a date, as the rule.";
   // The featured banner is a pale orange, so its text has to invert: white on
   // that ground is unreadable, and the green-greys that work on the dark
@@ -111,7 +115,7 @@ function banner(o: Opportunity, featured: boolean): string {
     <tr><td style="background:${featured ? C.bannerFeatured : C.banner};padding:14px 18px">
       <div style="font:600 10px ${SANS};letter-spacing:.14em;text-transform:uppercase;color:${label}">Deadline</div>
       <div style="font:600 17px ${SANS};color:${date};margin-top:4px">${escape(o.deadline.raw)}</div>
-      <div style="font:12px ${SANS};color:${sub};margin-top:5px">${note}</div>
+      ${note ? `<div style="font:12px ${SANS};color:${sub};margin-top:5px">${note}</div>` : ""}
     </td></tr>
   </table>`;
 }

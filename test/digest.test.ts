@@ -119,6 +119,18 @@ describe("only shows what the source stated", () => {
     expect(html).not.toContain("Duration");
   });
 
+  it("does not repeat the verification line on every card", () => {
+    const html = render(spread(5));
+    expect(html).not.toContain("Verified against the funder's own page");
+    // The claim is still made once, at the top.
+    expect(html).toContain("re-read on the funder's own page");
+  });
+
+  it("still flags a call that has no calendar date", () => {
+    const html = render([make({ deadline: { iso: null, raw: "Rolling" } })]);
+    expect(html).toContain("No fixed calendar date");
+  });
+
   it("keeps the deadline in the source's own words", () => {
     const html = render([make({ deadline: { iso: null, raw: "Rolling, no fixed date" } })]);
     expect(html).toContain("Rolling, no fixed date");
