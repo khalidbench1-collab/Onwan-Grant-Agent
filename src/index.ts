@@ -14,11 +14,34 @@ app.get("/status", (_req, res) => {
 });
 
 /**
+ * A run id supplied by the caller, or null if there was none.
+ *
+ * Firestore document ids cannot contain "/" and cannot be "." or "..", so the
+ * header is checked against an allowlist rather than passed straight through to
+ * `claimRun`. Throws on a header that is present but unusable — falling back to
+ * a random id would make a replay look like it was deduped when it in fact ran
+ * a second time, which is the one thing this header exists to disprove.
+ */
+function callerRunId(req: express.Request): string | null {
+  const raw = req.get("X-Onwan-Run-Id");
+  if (!raw) return null;
+  const id = raw.trim();
+  if (!/^[A-Za-z0-9][A-Za-z0-9._:-]{0,63}$/.test(id)) {
+    throw new Error("X-Onwan-Run-Id must be 1-64 chars of [A-Za-z0-9._:-]");
+  }
+  return id;
+}
+
+/**
  * Triggered by Cloud Scheduler, and by hand during the demo.
  *
  * The run id comes from the caller when there is one, so that a Scheduler retry
  * carries the same id and is recognised as the same run. Only if none is given
  * do we mint one.
+ *
+ * Scheduler wins over the header: a caller-supplied id is namespaced under
+ * `manual-`, so replaying one can never claim — and so suppress — the id a
+ * scheduled trigger is about to use.
  */
 app.post("/run", async (req, res) => {
   if (!config.runKey || req.get("X-Onwan-Run-Key") !== config.runKey) {
@@ -26,10 +49,18 @@ app.post("/run", async (req, res) => {
     return;
   }
 
+  let supplied: string | null;
+  try {
+    supplied = callerRunId(req);
+  } catch (error) {
+    res.status(400).json({ ok: false, error: (error as Error).message });
+    return;
+  }
+
   const runId =
     req.get("X-CloudScheduler-JobName") && req.get("X-CloudScheduler-ScheduleTime")
       ? `sched-${req.get("X-CloudScheduler-ScheduleTime")}`
-      : `manual-${randomUUID().slice(0, 8)}`;
+      : `manual-${supplied ?? randomUUID().slice(0, 8)}`;
 
   const outcome = await runPipeline(runId);
   res.status(outcome.status === "failed" ? 500 : 200).json(outcome);
