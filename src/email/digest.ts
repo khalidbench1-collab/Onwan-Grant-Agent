@@ -39,7 +39,7 @@ const C = {
   prepareSoft: "#FAEBE5",
   banner: "#1F2A25",
   masthead: "#164438",
-  bannerFeatured: "#A8481A",
+  bannerFeatured: "#F9D8BC",
 } as const;
 
 const SANS = "-apple-system,BlinkMacSystemFont,'Segoe UI',Helvetica,Arial,sans-serif";
@@ -101,14 +101,16 @@ function banner(o: Opportunity, featured: boolean): string {
   const note = o.deadline.iso
     ? "Verified against the funder's own page before this email was sent."
     : "No fixed calendar date on the page — treat the wording, not a date, as the rule.";
-  // The sub-text tints have to follow the ground: the green-greys that read
-  // well on the dark banner turn muddy on orange.
-  const label = featured ? "#F7D2B6" : "#8FBFA9";
-  const sub = featured ? "#EDC4A5" : "#A9BDB4";
+  // The featured banner is a pale orange, so its text has to invert: white on
+  // that ground is unreadable, and the green-greys that work on the dark
+  // banner go muddy on it.
+  const label = featured ? "#9A4415" : "#8FBFA9";
+  const date = featured ? "#4A2410" : "#FFFFFF";
+  const sub = featured ? "#8A6146" : "#A9BDB4";
   return `<table role="presentation" width="100%" style="border-collapse:collapse;margin:16px 0 20px">
     <tr><td style="background:${featured ? C.bannerFeatured : C.banner};padding:14px 18px">
       <div style="font:600 10px ${SANS};letter-spacing:.14em;text-transform:uppercase;color:${label}">Deadline</div>
-      <div style="font:600 17px ${SANS};color:#FFFFFF;margin-top:4px">${escape(o.deadline.raw)}</div>
+      <div style="font:600 17px ${SANS};color:${date};margin-top:4px">${escape(o.deadline.raw)}</div>
       <div style="font:12px ${SANS};color:${sub};margin-top:5px">${note}</div>
     </td></tr>
   </table>`;
