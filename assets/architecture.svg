@@ -68,8 +68,8 @@
 
 <rect class="stage" x="274" y="404" width="352" height="64" rx="3"/>
 <text class="lbl" x="290" y="428">DEDUPE</text>
-<text class="body" x="290" y="448">Hash of organisation + programme name</text>
-<text class="mut"  x="290" y="462">Not the URL — aggregators all differ</text>
+<text class="body" x="290" y="448">Token-set hash: funder + programme</text>
+<text class="mut"  x="290" y="462">Not the URL, and not word order</text>
 
 <path class="flow" d="M450,468 L450,496"/>
 

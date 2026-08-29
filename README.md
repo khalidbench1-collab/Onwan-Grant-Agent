@@ -35,8 +35,8 @@ Cloud Run — onwan-grants  (Node 20 / TypeScript)
       ├─ VERIFY     re-check every deadline against its own source page
       │               → anything unconfirmed is dropped, not guessed
       │
-      ├─ DEDUPE     Firestore hash on organisation + programme name
-      │               → the same call on three aggregators counts once
+      ├─ DEDUPE     Firestore token-set hash on organisation + programme
+      │               → same call, renamed between runs, still counts once
       │
       ├─ RANK       deterministic score on amount · feasibility · urgency
       │               → rejects stored with the reason they failed
@@ -69,6 +69,16 @@ a drafted pitch, or any "your unique advantage is" paragraph. Funders increasing
 AI-use disclosure on the application itself, and a digest that mixed sourced facts with
 generated advice would force the reader to sort one from the other — which is precisely
 what the verify stage exists to spare them.
+
+**Identity is a set of words, not a string.** Dedupe hashes the sorted, unique tokens of
+the funder plus the programme, and falls back to a name-overlap check against calls already
+seen from the same funder. The first version hashed the normalised name in order, and two
+live runs a day apart re-sent three calls because the model had appended a year, reordered
+a parenthesised list, and moved "e.V." to the other side of "(IJP)". Anything derived from
+generated text has to be compared as a set, because the generator is free to reorder it.
+Names are deliberately not stemmed: "Rainforest Reporting Grant" and "Global Reporting
+Grants" are different programmes from one funder, and folding the plural would drop a real
+call.
 
 **Ranking is a plain function, not a model call** (`src/agent/rank.ts`). It is
 deterministic, so the same input gives the same digest; it is unit-tested; and it is
