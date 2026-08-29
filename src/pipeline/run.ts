@@ -2,7 +2,7 @@ import { discover } from "../agent/discover.js";
 import { verify } from "../agent/verify.js";
 import { rank } from "../agent/rank.js";
 import { dedupe, remember, claimRun, finishRun, saveDigest } from "../store/firestore.js";
-import { renderDigest } from "../email/digest.js";
+import { renderDigest, MAX_PER_DIGEST } from "../email/digest.js";
 import { sendDigest } from "../email/resend.js";
 import type { Rejection } from "../schema.js";
 
@@ -62,7 +62,12 @@ export async function runPipeline(runId: string): Promise<RunOutcome> {
       };
     }
 
-    const ranked = rank(deduped.fresh, now);
+    // Cap BEFORE remembering. Anything past the cap is deliberately left
+    // unseen, so it surfaces in a later digest instead of being marked sent and
+    // lost — the reason this slice does not live in the renderer.
+    const ranked = rank(deduped.fresh, now).slice(0, MAX_PER_DIGEST);
+    const sent = ranked.map((r) => r.opportunity);
+    console.log(`[${runId}] sending ${ranked.length} of ${deduped.fresh.length} fresh`);
     const html = renderDigest(ranked, rejections, today);
     const subject = `Onwan Grants — ${ranked.length} open call${ranked.length === 1 ? "" : "s"} for you`;
 
@@ -70,7 +75,7 @@ export async function runPipeline(runId: string): Promise<RunOutcome> {
 
     // Only remember after a successful send. Marking them seen first would
     // mean a failed send silently loses those calls forever.
-    await remember(deduped.fresh, runId);
+    await remember(sent, runId);
 
     await saveDigest(runId, {
       sentAt: new Date().toISOString(),

@@ -38,22 +38,46 @@ function spread(n: number): Opportunity[] {
   );
 }
 
-describe("tiering", () => {
-  it("gives the top three a full brief and the rest a compact row", () => {
+describe("presentation", () => {
+  it("gives every call the full brief, not just the top three", () => {
     const html = render(spread(6));
-    // The brief card is the only thing that carries the field table.
-    expect(html.match(/Official link/g) ?? []).toHaveLength(3);
-    // Every opportunity still appears somewhere.
+    expect(html.match(/Official link/g) ?? []).toHaveLength(6);
     for (let i = 0; i < 6; i += 1) expect(html).toContain(`Programme ${i}`);
   });
 
-  it("does not invent a fourth brief when there are only two calls", () => {
+  it("features exactly the first three with the gold rule", () => {
+    const html = render(spread(6));
+    expect(html.match(/border-top:3px solid #C7A252/g) ?? []).toHaveLength(3);
+  });
+
+  it("features all of them when there are fewer than three", () => {
     const html = render(spread(2));
-    expect(html.match(/Official link/g) ?? []).toHaveLength(2);
+    expect(html.match(/border-top:3px solid #C7A252/g) ?? []).toHaveLength(2);
   });
 
   it("renders an empty digest without throwing", () => {
     expect(() => render([])).not.toThrow();
+  });
+
+  it("scores out of ten, not a hundred", () => {
+    const html = render(spread(1));
+    expect(html).toContain("out of 10");
+    expect(html).not.toContain("out of 100");
+  });
+
+  it("keeps the scoring internals out of the reader's way", () => {
+    const html = render(spread(4));
+    expect(html).not.toContain("Computed, not guessed");
+    expect(html).not.toMatch(/feasibility \d/);
+    expect(html).not.toMatch(/urgency \d/);
+    expect(html).not.toContain("substantial award");
+    expect(html).not.toMatch(/SCORE \d/); // the "01 · SCORE 92" line
+  });
+
+  it("signs off by handing the work back to the reader", () => {
+    const html = render(spread(1));
+    expect(html).toContain("Now, your turn to make a genuine application!");
+    expect(html).not.toContain("No angles, no drafted pitches");
   });
 });
 
