@@ -1,0 +1,137 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 900 780" width="900" height="780" role="img" aria-labelledby="t d">
+<title id="t">Onwan Grants architecture</title>
+<desc id="d">Cloud Scheduler triggers a Cloud Run service weekly. The service runs five stages — discover, verify, dedupe, rank, send. Discover and verify call Gemini on Vertex AI; dedupe and send read and write Firestore; send delivers a digest email through Resend. A public route serves the run history.</desc>
+
+<style>
+  .bg   { fill: #F6F5F1; }
+  .card { fill: #FFFFFF; stroke: #DDDCD4; stroke-width: 1; }
+  .stage{ fill: #FFFFFF; stroke: #C6C5BB; stroke-width: 1; }
+  .host { fill: none; stroke: #1B5E4A; stroke-width: 1.5; stroke-dasharray: 5 4; }
+  .ext  { fill: #EFEEE8; stroke: #C6C5BB; stroke-width: 1; }
+  .flow { fill: none; stroke: #161A18; stroke-width: 1.6; marker-end: url(#a); }
+  .side { fill: none; stroke: #6B726D; stroke-width: 1.1; stroke-dasharray: 3 3; marker-end: url(#b); }
+  .drop { fill: none; stroke: #B4531F; stroke-width: 1.2; marker-end: url(#c); }
+  text  { font-family: "Segoe UI", system-ui, -apple-system, sans-serif; fill: #161A18; }
+  .h1   { font-size: 21px; font-weight: 600; }
+  .sub  { font-size: 12.5px; fill: #6B726D; }
+  .lbl  { font-size: 13.5px; font-weight: 600; letter-spacing: .09em; fill: #1B5E4A; }
+  .body { font-size: 12.5px; fill: #3A423D; }
+  .mut  { font-size: 11.5px; fill: #6B726D; }
+  .warn { font-size: 11.5px; fill: #B4531F; }
+  .tag  { font-size: 10.5px; letter-spacing: .12em; fill: #6B726D; }
+  .mono { font-family: ui-monospace, "SFMono-Regular", Consolas, monospace; font-size: 11.5px; fill: #3A423D; }
+</style>
+
+<defs>
+  <marker id="a" viewBox="0 0 10 10" refX="9" refY="5" markerWidth="6" markerHeight="6" orient="auto-start-reverse">
+    <path d="M0,0 L10,5 L0,10 z" fill="#161A18"/>
+  </marker>
+  <marker id="b" viewBox="0 0 10 10" refX="9" refY="5" markerWidth="6" markerHeight="6" orient="auto-start-reverse">
+    <path d="M0,0 L10,5 L0,10 z" fill="#6B726D"/>
+  </marker>
+  <marker id="c" viewBox="0 0 10 10" refX="9" refY="5" markerWidth="6" markerHeight="6" orient="auto-start-reverse">
+    <path d="M0,0 L10,5 L0,10 z" fill="#B4531F"/>
+  </marker>
+</defs>
+
+<rect class="bg" width="900" height="780"/>
+
+<text class="h1" x="40" y="46">Onwan Grants</text>
+<text class="sub" x="40" y="68">Weekly funding digest for journalists · Node 20 / TypeScript on Google Cloud</text>
+
+<!-- Scheduler -->
+<rect class="card" x="300" y="96" width="300" height="52" rx="3"/>
+<text class="lbl" x="318" y="119">CLOUD SCHEDULER</text>
+<text class="mono" x="318" y="137">0 10 * * 1 · Europe/Berlin · 3 retries</text>
+
+<path class="flow" d="M450,148 L450,182"/>
+<text class="mono" x="462" y="170">POST /run</text>
+
+<!-- Cloud Run host -->
+<rect class="host" x="250" y="184" width="400" height="452" rx="4"/>
+<text class="tag" x="266" y="204">CLOUD RUN · onwan-grants · scale to zero</text>
+
+<!-- Stages -->
+<rect class="stage" x="274" y="216" width="352" height="64" rx="3"/>
+<text class="lbl" x="290" y="240">DISCOVER</text>
+<text class="body" x="290" y="260">Search for calls open today, in EN + DE</text>
+<text class="mut"  x="290" y="274">Structured JSON, parsed by Zod</text>
+
+<path class="flow" d="M450,280 L450,308"/>
+
+<rect class="stage" x="274" y="310" width="352" height="64" rx="3"/>
+<text class="lbl" x="290" y="334">VERIFY</text>
+<text class="body" x="290" y="354">Re-read every deadline on its source page</text>
+<text class="mut"  x="290" y="368">Unconfirmed is dropped, never guessed</text>
+
+<path class="flow" d="M450,374 L450,402"/>
+
+<rect class="stage" x="274" y="404" width="352" height="64" rx="3"/>
+<text class="lbl" x="290" y="428">DEDUPE</text>
+<text class="body" x="290" y="448">Hash of organisation + programme name</text>
+<text class="mut"  x="290" y="462">Not the URL — aggregators all differ</text>
+
+<path class="flow" d="M450,468 L450,496"/>
+
+<rect class="stage" x="274" y="498" width="352" height="64" rx="3"/>
+<text class="lbl" x="290" y="522">RANK</text>
+<text class="body" x="290" y="542">amount 0.40 · feasibility 0.35 · urgency 0.25</text>
+<text class="mut"  x="290" y="556">Plain function. Deterministic, tested, explainable</text>
+
+<path class="flow" d="M450,562 L450,590"/>
+
+<rect class="stage" x="274" y="592" width="352" height="34" rx="3"/>
+<text class="lbl" x="290" y="614">SEND</text>
+<text class="mono" x="392" y="614">digest: what · why · by when</text>
+
+<!-- Left: Vertex -->
+<rect class="ext" x="40" y="264" width="164" height="62" rx="3"/>
+<text class="lbl" x="56" y="288">VERTEX AI</text>
+<text class="mut" x="56" y="306">Gemini · @google/genai</text>
+<text class="mut" x="56" y="319">Google Search grounding</text>
+
+<path class="side" d="M204,288 L268,248"/>
+<path class="side" d="M204,306 L268,342"/>
+
+<!-- Rejections -->
+<path class="drop" d="M626,342 L714,342"/>
+<text class="warn" x="666" y="334">dropped</text>
+<rect class="card" x="716" y="300" width="148" height="86" rx="3"/>
+<text class="lbl"  x="732" y="322">REJECTIONS</text>
+<text class="mut"  x="732" y="341">Stored with the reason</text>
+<text class="mut"  x="732" y="355">read off the page —</text>
+<text class="mut"  x="732" y="369">shown in the digest.</text>
+
+<path class="drop" d="M626,436 L716,400" />
+
+<!-- Right: Firestore -->
+<rect class="ext" x="716" y="440" width="148" height="76" rx="3"/>
+<text class="lbl" x="732" y="463">FIRESTORE</text>
+<text class="mono" x="732" y="481">grants_seen</text>
+<text class="mono" x="732" y="496">grants_runs</text>
+<text class="mono" x="732" y="511">grants_digests</text>
+
+<path class="side" d="M626,436 L712,452"/>
+<path class="side" d="M626,609 L712,500"/>
+
+<!-- claim run: stated, not drawn - a connector here would cross the rejections card -->
+<text class="lbl"  x="664" y="120">IDEMPOTENCY</text>
+<text class="mut"  x="664" y="139">claimRun() writes the run id</text>
+<text class="mut"  x="664" y="153">with .create() — a retry of the</text>
+<text class="mut"  x="664" y="167">same trigger sends one email.</text>
+
+<!-- Out: Resend -->
+<path class="flow" d="M450,636 L450,668"/>
+<rect class="card" x="300" y="670" width="300" height="52" rx="3"/>
+<text class="lbl" x="318" y="693">RESEND → INBOX</text>
+<text class="mut" x="318" y="711">Ranked digest, every entry linking its source</text>
+
+<!-- Public route -->
+<rect class="card" x="40" y="592" width="164" height="62" rx="3"/>
+<text class="mono" x="56" y="615">GET /</text>
+<text class="mut"  x="56" y="633">Run history —</text>
+<text class="mut"  x="56" y="646">the hosted URL</text>
+<path class="side" d="M248,620 L208,620"/>
+
+<text class="mut" x="40" y="748">Every opportunity carries a source URL. Nothing reaches the inbox that its own page did not confirm.</text>
+</svg>

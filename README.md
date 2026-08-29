@@ -18,6 +18,11 @@ missed.
 
 ## How it runs
 
+![Architecture: Cloud Scheduler triggers a Cloud Run service that runs discover, verify, dedupe, rank and send](assets/architecture.svg)
+
+<details>
+<summary>Same thing as text</summary>
+
 ```
 Cloud Scheduler  (Mondays 10:00 Europe/Berlin)
       │
@@ -40,6 +45,8 @@ Cloud Run — onwan-grants  (Node 20 / TypeScript)
       │
       └─ GET /      minimal page of past digests — the hosted URL
 ```
+
+</details>
 
 ### Three decisions worth defending
 
