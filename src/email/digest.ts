@@ -36,8 +36,10 @@ const C = {
   accentLine: "#C7A252",
   signal: "#B4531F",
   signalSoft: "#F6E9DF",
+  prepareSoft: "#FAEBE5",
   banner: "#1F2A25",
-  bannerTop: "#164438",
+  masthead: "#164438",
+  bannerFeatured: "#A8481A",
 } as const;
 
 const SANS = "-apple-system,BlinkMacSystemFont,'Segoe UI',Helvetica,Arial,sans-serif";
@@ -99,11 +101,15 @@ function banner(o: Opportunity, featured: boolean): string {
   const note = o.deadline.iso
     ? "Verified against the funder's own page before this email was sent."
     : "No fixed calendar date on the page — treat the wording, not a date, as the rule.";
+  // The sub-text tints have to follow the ground: the green-greys that read
+  // well on the dark banner turn muddy on orange.
+  const label = featured ? "#F7D2B6" : "#8FBFA9";
+  const sub = featured ? "#EDC4A5" : "#A9BDB4";
   return `<table role="presentation" width="100%" style="border-collapse:collapse;margin:16px 0 20px">
-    <tr><td style="background:${featured ? C.bannerTop : C.banner};padding:14px 18px">
-      <div style="font:600 10px ${SANS};letter-spacing:.14em;text-transform:uppercase;color:#8FBFA9">Deadline</div>
+    <tr><td style="background:${featured ? C.bannerFeatured : C.banner};padding:14px 18px">
+      <div style="font:600 10px ${SANS};letter-spacing:.14em;text-transform:uppercase;color:${label}">Deadline</div>
       <div style="font:600 17px ${SANS};color:#FFFFFF;margin-top:4px">${escape(o.deadline.raw)}</div>
-      <div style="font:12px ${SANS};color:#A9BDB4;margin-top:5px">${note}</div>
+      <div style="font:12px ${SANS};color:${sub};margin-top:5px">${note}</div>
     </td></tr>
   </table>`;
 }
@@ -135,22 +141,37 @@ function howToApply(o: Opportunity): string {
   </table>`;
 }
 
-/** The paperwork, as something you can actually tick off. */
-function checklist(o: Opportunity): string {
+/**
+ * The paperwork, as something you can actually tick off.
+ *
+ * Featured calls get it on a tint, so the two things the reader has to DO —
+ * the steps and the paperwork — read as a pair against the fields above them.
+ */
+function checklist(o: Opportunity, featured: boolean): string {
   if (o.requirements.length === 0) return "";
   const items = o.requirements
     .map(
       (r) =>
         `<tr>
-           <td style="padding:4px 9px 4px 0;font:14px ${SANS};color:${C.muted};vertical-align:top">&#9744;</td>
+           <td style="padding:4px 9px 4px 0;font:14px ${SANS};color:${featured ? C.signal : C.muted};vertical-align:top">&#9744;</td>
            <td style="padding:4px 0;font:13.5px ${SANS};color:${C.soft};line-height:1.5">${escape(r)}</td>
          </tr>`,
     )
     .join("");
-  return `<div style="margin:20px 0 0">
-    ${sectionLabel("What you must prepare")}
-    <table role="presentation" style="border-collapse:collapse">${items}</table>
-  </div>`;
+
+  if (!featured) {
+    return `<div style="margin:20px 0 0">
+      ${sectionLabel("What you must prepare")}
+      <table role="presentation" style="border-collapse:collapse">${items}</table>
+    </div>`;
+  }
+
+  return `<table role="presentation" width="100%" style="border-collapse:collapse;margin:18px 0 0">
+    <tr><td style="background:${C.prepareSoft};padding:14px 18px">
+      <div style="font:600 10.5px ${SANS};letter-spacing:.12em;text-transform:uppercase;color:${C.signal};margin-bottom:9px">What you must prepare</div>
+      <table role="presentation" style="border-collapse:collapse">${items}</table>
+    </td></tr>
+  </table>`;
 }
 
 function urgentFlag(score: Ranked["score"]): string {
@@ -201,7 +222,7 @@ function card({ opportunity: o, score }: Ranked, featured: boolean): string {
 
         ${urgentFlag(score)}
         ${featured ? howToApply(o) : ""}
-        ${checklist(o)}
+        ${checklist(o, featured)}
 
       </td></tr>
     </table>
@@ -243,7 +264,7 @@ export function renderDigest(ranked: Ranked[], rejections: Rejection[], today: s
 <table role="presentation" width="100%" style="border-collapse:collapse;background:${C.ground}">
 <tr><td align="center" style="padding:0 0 46px">
 
-<table role="presentation" width="100%" style="border-collapse:collapse;background:${C.bannerTop}">
+<table role="presentation" width="100%" style="border-collapse:collapse;background:${C.masthead}">
   <tr><td align="center" style="padding:34px 14px 30px">
     <table role="presentation" width="640" style="width:100%;max-width:640px;border-collapse:collapse">
       <tr><td>
