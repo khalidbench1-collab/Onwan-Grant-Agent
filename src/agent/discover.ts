@@ -56,10 +56,17 @@ For each opportunity you find, write a short block containing:
 - who is eligible (region, career stage, language, medium)
 - what the applicant must submit (pitch, CV, budget, reference letters, etc.)
 - the direct URL of the page you took this from
+- the application portal URL, if applying happens somewhere other than that page
+- how long the funded work runs, if the call states it
+- the language the application must be written in, if the call states it
+- the steps to apply, in order, if the call spells them out — quote its own
+  instructions, numbered. Skip this entirely if the page does not give steps.
 
 Rules:
 - Only include an opportunity if you have an actual source URL for it.
 - Never guess a deadline or an amount. If a page does not state one, say so.
+- The last four items are optional. Omit any the page does not state. An absent
+  field is correct; an invented one is a defect.
 - Prefer the funder's own page over an aggregator's summary.
 
 Find as many as you can, up to 15. A shorter list of genuinely open calls beats
@@ -73,7 +80,12 @@ programme, amount, deadline or URL that does not appear in the notes you are
 given. If a field is not stated in the notes, use null (for amount.value,
 amount.currency, deadline.iso) or copy the note's own wording into the raw
 field. Today's date is {TODAY}; use it only to resolve relative dates like
-"end of next month" that the notes state explicitly.`;
+"end of next month" that the notes state explicitly.
+
+applyUrl, duration, language and howToApply are optional. Use null (or an empty
+array for howToApply) whenever the notes do not state them. Do not reconstruct
+application steps from the requirements list — steps and requirements are
+different things, and inventing an order the page never gave is a defect.`;
 
 const responseSchema = {
   type: "object",
@@ -106,6 +118,10 @@ const responseSchema = {
           eligibility: { type: "string" },
           requirements: { type: "array", items: { type: "string" } },
           sourceUrl: { type: "string" },
+          applyUrl: { type: "string", nullable: true },
+          duration: { type: "string", nullable: true },
+          language: { type: "string", nullable: true },
+          howToApply: { type: "array", items: { type: "string" } },
         },
         required: [
           "organisation",

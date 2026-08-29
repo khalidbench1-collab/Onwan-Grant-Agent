@@ -42,6 +42,7 @@ Cloud Run — onwan-grants  (Node 20 / TypeScript)
       │               → rejects stored with the reason they failed
       │
       └─ SEND       Resend → digest email: what, why, by when
+      │               → top 3 in full, the rest one line each
       │
       └─ GET /      minimal page of past digests — the hosted URL
 ```
@@ -60,6 +61,14 @@ dead ends would have arrived looking like live ones.
 
 **One rejection per run is healthy, not a bug.** A run where verify drops nothing means
 verify has stopped working.
+
+**The digest states only what it can source.** The top three calls get a full brief — the
+page's own deadline, a field table, the application steps quoted from the call, and the
+paperwork as a checklist you can tick off. What is deliberately absent is suggested angles,
+a drafted pitch, or any "your unique advantage is" paragraph. Funders increasingly require
+AI-use disclosure on the application itself, and a digest that mixed sourced facts with
+generated advice would force the reader to sort one from the other — which is precisely
+what the verify stage exists to spare them.
 
 **Ranking is a plain function, not a model call** (`src/agent/rank.ts`). It is
 deterministic, so the same input gives the same digest; it is unit-tested; and it is

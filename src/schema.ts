@@ -37,6 +37,24 @@ export const OpportunitySchema = z.object({
   /** What the applicant must actually assemble. Drives the feasibility score. */
   requirements: z.array(z.string()),
   sourceUrl: z.string().url(),
+
+  /*
+   * Everything below is optional and defaulted.
+   *
+   * These fill the detail card in the digest, and a funder page that does not
+   * state them is normal rather than exceptional. A required field here would
+   * mean one silent page turning a whole run into a schema failure, so each
+   * degrades to "not stated" and the digest simply omits that row.
+   */
+
+  /** The application portal, when it differs from the page the call was read from. */
+  applyUrl: z.string().url().nullable().default(null),
+  /** e.g. "Reporting November 2026 to April 2027". Null when the call says nothing. */
+  duration: z.string().nullable().default(null),
+  /** The language the application must be written in. */
+  language: z.string().nullable().default(null),
+  /** Ordered steps, quoted from the call's own instructions. Never invented. */
+  howToApply: z.array(z.string()).default([]),
 });
 
 export type Amount = z.infer<typeof AmountSchema>;
