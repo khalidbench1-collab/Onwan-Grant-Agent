@@ -42,7 +42,7 @@ Cloud Run — onwan-grants  (Node 20 / TypeScript)
       │               → rejects stored with the reason they failed
       │
       └─ SEND       Resend → digest email: what, why, by when
-      │               → top 3 in full, the rest one line each
+      │               → seven at most, capped before anything is marked sent
       │
       └─ GET /      minimal page of past digests — the hosted URL
 ```
@@ -62,23 +62,30 @@ dead ends would have arrived looking like live ones.
 **One rejection per run is healthy, not a bug.** A run where verify drops nothing means
 verify has stopped working.
 
-**The digest states only what it can source.** The top three calls get a full brief — the
-page's own deadline, a field table, the application steps quoted from the call, and the
-paperwork as a checklist you can tick off. What is deliberately absent is suggested angles,
-a drafted pitch, or any "your unique advantage is" paragraph. Funders increasingly require
-AI-use disclosure on the application itself, and a digest that mixed sourced facts with
-generated advice would force the reader to sort one from the other — which is precisely
-what the verify stage exists to spare them.
+**The digest states only what it can source.** Every call gets the same brief — the page's
+own deadline, a field table, what the programme is, and the required paperwork as a
+checklist you can tick off. The three best are weighted for the eye (a gold rule, a warm
+banner, a tinted header) and they alone carry the application steps, which are the longest
+block on a card and would bury the top three if repeated seven times.
 
-**Identity is a set of words, not a string.** Dedupe hashes the sorted, unique tokens of
-the funder plus the programme, and falls back to a name-overlap check against calls already
-seen from the same funder. The first version hashed the normalised name in order, and two
-live runs a day apart re-sent three calls because the model had appended a year, reordered
-a parenthesised list, and moved "e.V." to the other side of "(IJP)". Anything derived from
-generated text has to be compared as a set, because the generator is free to reorder it.
-Names are deliberately not stemmed: "Rainforest Reporting Grant" and "Global Reporting
-Grants" are different programmes from one funder, and folding the plural would drop a real
-call.
+What is deliberately absent is suggested angles, a drafted pitch, or any "your unique
+advantage is" paragraph. Funders increasingly require AI-use disclosure on the application
+itself, and a digest that mixed sourced facts with generated advice would force the reader
+to sort one from the other — which is precisely what the verify stage exists to spare them.
+The email signs off by handing the work back: *"Now, your turn to make a genuine
+application!"*
+
+**Seven calls at most, and the cap is applied before anything is remembered.** A longer
+list is one nobody finishes. The slice happens in the pipeline rather than the renderer for
+a specific reason: `remember()` marks what was sent, so capping at render time would mark
+calls sent that no email ever carried, and dedupe would then hide them forever. What does
+not make the cut stays unseen and is eligible next week — the run log prints
+`sending 7 of 8 fresh` so the queue is visible.
+
+The scoring internals are not shown. The order they produce is useful; three sub-scores
+printed beside every entry made the email read like a debug dump. The score appears once
+per call as a whole number out of ten — a decimal implies a precision the weights do not
+have.
 
 **Ranking is a plain function, not a model call** (`src/agent/rank.ts`). It is
 deterministic, so the same input gives the same digest; it is unit-tested; and it is
