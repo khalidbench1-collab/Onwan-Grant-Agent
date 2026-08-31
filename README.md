@@ -18,7 +18,7 @@ missed.
 
 ## How it runs
 
-![Architecture: Cloud Scheduler triggers a Cloud Run service that runs discover, verify, dedupe, rank and send](assets/architecture.svg)
+![Architecture: Cloud Scheduler triggers a Cloud Run service that runs discover, verify, dedupe, rank, compose and send](assets/architecture.svg)
 
 <details>
 <summary>Same thing as text</summary>

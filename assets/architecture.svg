@@ -1,4 +1,4 @@
-<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 900 780" width="900" height="780" role="img" aria-labelledby="t d">
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 900 874" width="900" height="874" role="img" aria-labelledby="t d">
 <title id="t">Onwan Grants architecture</title>
 <desc id="d">Cloud Scheduler triggers a Cloud Run service weekly. The service runs five stages — discover, verify, dedupe, rank, send. Discover and verify call Gemini on Vertex AI; dedupe and send read and write Firestore; send delivers a digest email through Resend. A public route serves the run history.</desc>
 
@@ -48,7 +48,7 @@
 <text class="mono" x="462" y="170">POST /run</text>
 
 <!-- Cloud Run host -->
-<rect class="host" x="250" y="184" width="400" height="452" rx="4"/>
+<rect class="host" x="250" y="184" width="400" height="546" rx="4"/>
 <text class="tag" x="266" y="204">CLOUD RUN · onwan-grants · scale to zero</text>
 
 <!-- Stages -->
@@ -80,9 +80,16 @@
 
 <path class="flow" d="M450,562 L450,590"/>
 
-<rect class="stage" x="274" y="592" width="352" height="34" rx="3"/>
-<text class="lbl" x="290" y="614">SEND</text>
-<text class="mono" x="392" y="614">digest: what · why · by when</text>
+<rect class="stage" x="274" y="592" width="352" height="64" rx="3"/>
+<text class="lbl" x="290" y="616">COMPOSE</text>
+<text class="body" x="290" y="636">Top three: full brief, fields, how to apply</text>
+<text class="mut"  x="290" y="650">The rest one line each — a digest you finish</text>
+
+<path class="flow" d="M450,656 L450,684"/>
+
+<rect class="stage" x="274" y="686" width="352" height="34" rx="3"/>
+<text class="lbl" x="290" y="708">SEND</text>
+<text class="mono" x="392" y="708">digest: what · why · by when</text>
 
 <!-- Left: Vertex -->
 <rect class="ext" x="40" y="264" width="164" height="62" rx="3"/>
@@ -112,7 +119,7 @@
 <text class="mono" x="732" y="511">grants_digests</text>
 
 <path class="side" d="M626,436 L712,452"/>
-<path class="side" d="M626,609 L712,500"/>
+<path class="side" d="M626,703 L712,516"/>
 
 <!-- claim run: stated, not drawn - a connector here would cross the rejections card -->
 <text class="lbl"  x="664" y="120">IDEMPOTENCY</text>
@@ -121,17 +128,17 @@
 <text class="mut"  x="664" y="167">same trigger sends one email.</text>
 
 <!-- Out: Resend -->
-<path class="flow" d="M450,636 L450,668"/>
-<rect class="card" x="300" y="670" width="300" height="52" rx="3"/>
-<text class="lbl" x="318" y="693">RESEND → INBOX</text>
-<text class="mut" x="318" y="711">Ranked digest, every entry linking its source</text>
+<path class="flow" d="M450,730 L450,762"/>
+<rect class="card" x="300" y="764" width="300" height="52" rx="3"/>
+<text class="lbl" x="318" y="787">RESEND → INBOX</text>
+<text class="mut" x="318" y="805">Ranked digest, every entry linking its source</text>
 
 <!-- Public route -->
-<rect class="card" x="40" y="592" width="164" height="62" rx="3"/>
-<text class="mono" x="56" y="615">GET /</text>
-<text class="mut"  x="56" y="633">Run history —</text>
-<text class="mut"  x="56" y="646">the hosted URL</text>
-<path class="side" d="M248,620 L208,620"/>
+<rect class="card" x="40" y="672" width="164" height="62" rx="3"/>
+<text class="mono" x="56" y="695">GET /</text>
+<text class="mut"  x="56" y="713">Run history —</text>
+<text class="mut"  x="56" y="726">the hosted URL</text>
+<path class="side" d="M248,700 L208,700"/>
 
-<text class="mut" x="40" y="748">Every opportunity carries a source URL. Nothing reaches the inbox that its own page did not confirm.</text>
+<text class="mut" x="40" y="842">Every opportunity carries a source URL. Nothing reaches the inbox that its own page did not confirm.</text>
 </svg>
